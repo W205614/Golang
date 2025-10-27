@@ -12,6 +12,16 @@ func test1() {
 	}
 }
 
+// 字符串
+// range 迭代字符串时，返回每个字符的索引和 Unicode 代码点（rune）
+
+func test2() {
+	for i, c := range "hello" {
+		fmt.Printf("index: %d, char: %c\n", i, c)
+	}
+}
+
 func main() {
 	test1()
+	test2()
 }
