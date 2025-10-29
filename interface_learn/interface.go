@@ -80,6 +80,175 @@ func test1() {
 	fmt.Println("Perimeter:", s.Perimeter())
 }
 
+// 空接口 interface{} 是 Go 的特殊接口，表示所有类型的超集
+//
+//	任意类型都实现了空接口。
+//	常用于需要存储任意类型数据的场景，如泛型容器、通用参数等
+func printValue(val interface{}) {
+	fmt.Printf("Value: %v, Type: %T\n", val, val)
+}
+
+func test2() {
+	printValue(42)
+	printValue("hello")
+	printValue(3.14)
+	printValue([]int{1, 2})
+}
+
+// 类型断言用于从接口类型中提取其底层值
+// value := iface.(Type), iface 是接口变量, Type 是要断言的具体类型, 如果类型不匹配，会触发 panic
+func test3() {
+	var i interface{} = "hello"
+	str := i.(string) // 类型断言
+	fmt.Println(str)
+}
+
+// 为了避免 panic，可以使用带检查的类型断言：
+// value, ok := iface.(Type), ok 是一个布尔值，表示断言是否成功, 如果断言失败，value 为零值，ok 为 false
+func test4() {
+	var i interface{} = 42
+	if str, ok := i.(string); ok {
+		fmt.Println("String:", str)
+	} else {
+		fmt.Println("Not a string")
+	}
+}
+
+// 类型选择（type switch）
+// type switch 是 Go 中的语法结构，用于根据接口变量的具体类型执行不同的逻辑
+func printType(val interface{}) {
+	switch v := val.(type) {
+	case int:
+		fmt.Println("Integer:", v)
+	case string:
+		fmt.Println("String:", v)
+	case float64:
+		fmt.Println("Float:", v)
+	default:
+		fmt.Println("Unknown type")
+	}
+}
+
+func test5() {
+	printType(42)
+	printType("hello")
+	printType(3.14)
+	printType([]int{1, 2, 3})
+}
+
+// 接口组合
+// 接口可以通过嵌套组合，实现更复杂的行为描述
+type Reader interface {
+	Read() string
+}
+
+type Writer interface {
+	Write(data string)
+}
+
+type ReadWriter interface {
+	Reader
+	Writer
+}
+
+type File struct{}
+
+func (f File) Read() string {
+	return "Reading data"
+}
+
+func (f File) Write(data string) {
+	fmt.Println("Writing data:", data)
+}
+
+func test6() {
+	var rw ReadWriter = File{}
+	fmt.Println(rw.Read())
+	rw.Write("Hello Go!")
+}
+
+// 动态值和动态类型
+func test7() {
+	var i interface{} = 42
+	fmt.Printf("Dynamic type: %T, Dynamic value: %v\n", i, i)
+}
+
+// 接口的零值是 nil
+// 当接口变量的动态类型和动态值都为 nil 时，接口变量为 nil
+func test8() {
+	var i interface{}
+	fmt.Println(i == nil)
+}
+
+// 接口的使用练习
+// 练习1
+type Phone interface {
+	call()
+}
+
+type NokiaPhone struct{}
+
+func (nokiaPhone NokiaPhone) call() {
+	fmt.Println("I am Nokia, I can call you!")
+}
+
+type IPhone struct{}
+
+func (iPhone IPhone) call() {
+	fmt.Println("I am iPhone, I can call you!")
+}
+
+func exercise1() {
+	var phone Phone
+
+	phone = new(NokiaPhone)
+	phone.call()
+
+	phone = new(IPhone)
+	phone.call()
+}
+
+// 练习2
+type Shape1 interface {
+	area() float64
+}
+
+type Rectangle struct {
+	width  float64
+	height float64
+}
+
+func (r Rectangle) area() float64 {
+	return r.width * r.height
+}
+
+type Circle1 struct {
+	radius float64
+}
+
+func (c Circle1) area() float64 {
+	return 3.14 * c.radius * c.radius
+}
+
+func exercise2() {
+	var s Shape1
+
+	s = Rectangle{width: 10, height: 5}
+	fmt.Printf("矩形面积: %f\n", s.area())
+
+	s = Circle1{radius: 3}
+	fmt.Printf("圆形面积: %f\n", s.area())
+}
+
 func main() {
 	test1()
+	test2()
+	test3()
+	test4()
+	test5()
+	test6()
+	test7()
+	test8()
+	exercise1()
+	exercise2()
 }
