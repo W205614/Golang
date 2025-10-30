@@ -1,0 +1,38 @@
+在 Go 语言中，文件处理是一个非常重要的功能，它允许我们读取、写入和操作文件。无论是处理配置文件、日志文件，还是进行数据持久化，文件处理都是不可或缺的一部分
+Go 语言提供了丰富的标准库来支持文件处理，包括文件的打开、关闭、读取、写入、追加和删除等操作
+    1.os 是核心库：提供底层文件操作（创建、读写、删除等），大多数场景优先使用
+    2.io 提供通用接口：如 Reader/Writer，可与文件、网络等数据源交互
+    3.bufio 优化性能：通过缓冲减少 I/O 操作次数，适合频繁读写
+    4.ioutil 已弃用：Go 1.16 后其功能迁移到 os 和 io 包
+    5.path/filepath 处理路径：跨平台兼容（Windows/Unix 路径分隔符差异）
+
+读取小文件	os.ReadFile("file.txt")	简洁高效，自动处理打开/关闭
+逐行读取大文件	bufio.NewScanner(file)	内存友好，逐行处理
+高效写入大量数据	bufio.NewWriter(file) + writer.WriteString()	缓冲减少磁盘 I/O 次数
+递归遍历目录	filepath.Walk("/path", callback)	自动处理子目录和错误
+跨平台路径拼接	filepath.Join("dir", "file.txt")	自动处理不同操作系统的路径分隔符（/ 或 \）
+
+库名	                    主要方法/函数	                                            用途说明	                                                示例代码
+os	            Create(name string) (*File, error)	                            创建文件（若存在则清空）	                           file, err := os.Create("test.txt")
+                Open(name string) (*File, error)	                            只读方式打开文件	                                  file, err := os.Open("data.txt")
+                OpenFile(name string, flag int, perm FileMode) (*File, error)	自定义模式打开文件（可指定读写、追加等）	            file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_WRONLY, 0644)
+                ReadFile(name string) ([]byte, error)	                        一次性读取整个文件内容（小文件适用）	                data, err := os.ReadFile("config.json")
+                WriteFile(name string, data []byte, perm FileMode) error	    一次性写入文件（覆盖原有内容）	                       err := os.WriteFile("out.txt", []byte("Hello"), 0644)
+                Remove(name string) error	                                    删除文件或空目录	                                  err := os.Remove("temp.txt")
+                Rename(oldpath, newpath string) error	                        重命名或移动文件	                                  err := os.Rename("old.txt", "new.txt")
+                Stat(name string) (FileInfo, error)	                            获取文件信息（大小、权限等）	                       info, err := os.Stat("file.txt")
+                Mkdir(name string, perm FileMode) error	                        创建单个目录	                                      err := os.Mkdir("mydir", 0755)
+                MkdirAll(path string, perm FileMode) error	                    递归创建多级目录	                                  err := os.MkdirAll("path/to/dir", 0755)
+                ReadDir(name string) ([]DirEntry, error)	                    读取目录内容	                                      entries, err := os.ReadDir(".")
+io	            Copy(dst Writer, src Reader) (written int64, err error)	        从 Reader 复制数据到 Writer（如文件复制）	           io.Copy(dstFile, srcFile)
+                ReadAll(r Reader) ([]byte, error)	                            从 Reader 读取所有数据（类似 os.ReadFile，但针对接口）	data, err := io.ReadAll(file)
+bufio	        NewScanner(r Reader) *Scanner	                                创建逐行扫描器（适合逐行读取）	                        scanner := bufio.NewScanner(file)
+                NewReader(rd io.Reader) *Reader	                                创建带缓冲的读取器（提高大文件读取效率）	             reader := bufio.NewReader(file)
+                NewWriter(w io.Writer) *Writer	                                创建带缓冲的写入器（提高写入效率）	                     writer := bufio.NewWriter(file)
+ioutil	        ReadFile(filename string) ([]byte, error)	                    （已弃用，推荐 os.ReadFile）	                       data, err := ioutil.ReadFile("old.txt")
+                WriteFile(filename string, data []byte, perm os.FileMode) error	（已弃用，推荐 os.WriteFile）	                       err := ioutil.WriteFile("out.txt", data, 0644)
+                TempDir(dir, pattern string) (name string, err error)	        （已弃用，推荐 os.MkdirTemp）	                       dir, err := ioutil.TempDir("", "tmp")
+                TempFile(dir, pattern string) (f *os.File, err error)	        （已弃用，推荐 os.CreateTemp）	                       file, err := ioutil.TempFile("", "temp-*")
+path/filepath	Join(elem ...string) string	                                     跨平台安全的路径拼接	                               path := filepath.Join("dir", "file.txt")
+                Walk(root string, fn WalkFunc) error	                         递归遍历目录树	                                       filepath.Walk(".", func(path string, info os.FileInfo, err error) error {...})
+                Abs(path string) (string, error)	                             获取绝对路径	                                       absPath, err := filepath.Abs("file.txt")
